@@ -13,6 +13,9 @@ exports.createPages = async ({ graphql, actions: { createPage }}) => {
       routes: allRoutesList {
         routeShortName
       }
+      stops: allStopsList {
+        stopId
+      }
     }
   }
   `)
@@ -26,4 +29,14 @@ exports.createPages = async ({ graphql, actions: { createPage }}) => {
       },
     });
   });
+
+  result.data.postgres.stops.forEach(stop => {
+    createPage({
+      path: `/stop/${stop.stopId}`,
+      component: path.resolve('./src/templates/stop-page.js'),
+      context: {
+        stopId: stop.stopId,
+      }
+    })
+  })
 }
