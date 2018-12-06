@@ -1,6 +1,14 @@
+let activeEnv = process.env.ACTIVE_ENV || process.env.NODE_ENV || "development"
+
+console.log(`Using environment config: '${activeEnv}'`)
+
+require("dotenv").config({
+  path: `.env.${activeEnv}`,
+})
+
 module.exports = {
   siteMetadata: {
-    title: 'Gatsby Default Starter',
+    title: 'Buses',
   },
   plugins: [
     'gatsby-plugin-react-helmet',
@@ -29,8 +37,8 @@ module.exports = {
     {
       resolve: 'gatsby-source-pg',
       options: {
-        connectionString: 'postgres:///gatsby_example',
-        schema: 'public',
+        connectionString: process.env.PG_CONN,
+        schema: 'gtfs',
       },
     },
   ],

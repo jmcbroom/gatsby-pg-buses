@@ -5,28 +5,25 @@
  */
 
 const path = require('path');
-const slugifyPost = require('./slugifyPost');
 
-exports.createPages = async ({graphql, actions: { createPage}}) => {
+exports.createPages = async ({ graphql, actions: { createPage }}) => {
   const result = await graphql(`
   {
     postgres {
-      posts: allPostsList {
-        id
-        title
+      routes: allRoutesList {
+        routeShortName
       }
     }
   }
   `)
 
-  result.data.postgres.posts.forEach(post => {
+  result.data.postgres.routes.forEach(route => {
     createPage({
-      path: slugifyPost(post),
-      component: path.resolve('./src/templates/blog-post.js'),
+      path: `/route/${Number(route.routeShortName)}`,
+      component: path.resolve('./src/templates/route-page.js'),
       context: {
-        postId: post.id,
+        routeNo: route.routeShortName,
       },
     });
   });
-
 }
