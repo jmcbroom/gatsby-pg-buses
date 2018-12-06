@@ -7,7 +7,7 @@ import RoutesList from "../components/RoutesList";
 const IndexPage = ({ data }) => (
   <Layout>
     <h2>Routes</h2>
-    <RoutesList routes={data.postgres.routes} />
+    <RoutesList routes={data.postgres.routes.sort((a, b) => { return Number(a.routeShortName) < Number(b.routeShortName)})} />
   </Layout>
 );
 
