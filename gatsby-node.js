@@ -30,6 +30,26 @@ exports.createPages = async ({ graphql, actions: { createPage }}) => {
     });
   });
 
+  result.data.postgres.routes.forEach(route => {
+    createPage({
+      path: `/route/${Number(route.routeShortName)}/stops`,
+      component: path.resolve('./src/templates/route-stop-page.js'),
+      context: {
+        routeNo: route.routeShortName,
+      },
+    });
+  });
+
+  result.data.postgres.routes.forEach(route => {
+    createPage({
+      path: `/route/${Number(route.routeShortName)}/schedule`,
+      component: path.resolve('./src/templates/route-schedule-page.js'),
+      context: {
+        routeNo: route.routeShortName,
+      },
+    });
+  });
+
   result.data.postgres.stops.forEach(stop => {
     createPage({
       path: `/stop/${stop.stopId}`,

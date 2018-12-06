@@ -1,21 +1,13 @@
 import React from "react";
-import { Link, graphql } from "gatsby";
-import _ from "lodash";
+import { graphql } from "gatsby";
 
 import Layout from "../components/layout";
+import RoutesList from "../components/RoutesList";
 
 const IndexPage = ({ data }) => (
   <Layout>
     <h2>Routes</h2>
-    <ul>
-      {data.postgres.routes.map(route => (
-        <li key={Number(route.routeShortName)}>
-          <Link to={`/route/${Number(route.routeShortName)}`}>
-            {Number(route.routeShortName)} {_.startCase(_.toLower(route.routeLongName))}
-          </Link>
-        </li>
-      ))}
-    </ul>
+    <RoutesList routes={data.postgres.routes} />
   </Layout>
 );
 
