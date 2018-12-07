@@ -1,6 +1,34 @@
 import React from "react";
 import _ from "lodash";
-import { Table } from "semantic-ui-react";
+import { Table, TableCell } from "semantic-ui-react";
+
+/**
+ * helper function for formatting an arrivalTime into a human readable
+ * @param {} time
+ */
+const arrivalTimeDisplay = time => {
+  let hour = time.hours;
+  let minutes = time.minutes ? time.minutes.toString().padStart(2, "0") : "00";
+  let ap = "am";
+
+  // vary hours & am/pm based on what hour it is
+  // gtfs has hours that are greater than 24
+  if (time.hours < 12 && time.hours > 0) {
+    hour = time.hours;
+    ap = "am";
+  } else if (time.hours > 12 && time.hours < 24) {
+    hour = time.hours - 12;
+    ap = "pm";
+  } else if (time.hours === 24) {
+    hour = 12;
+    ap = "am";
+  } else if (time.hours >= 24) {
+    hour = time.hours - 24;
+    ap = "am";
+  }
+
+  return `${hour}:${minutes} ${ap}`;
+};
 
 class RouteSchedule extends React.Component {
   constructor(props) {
@@ -18,6 +46,7 @@ class RouteSchedule extends React.Component {
   render() {
     const all = this.props.trips;
 
+    // filter trips by currently selected direction & service
     const filtered = all.filter(t => {
       return (
         t.directionId === this.state.direction &&
@@ -25,8 +54,27 @@ class RouteSchedule extends React.Component {
       );
     });
 
-    const timepoints = filtered[0].stopTimesByFeedIndexAndTripIdList.map(
-      st => st.stopByFeedIndexAndStopId.stopDesc
+    // sort by comparing the first stop time of the trips
+    const sorted = filtered.sort((a, b) => {
+      return (
+        a.stopTimesByFeedIndexAndTripIdList[0].arrivalTime.hours * 60 +
+        a.stopTimesByFeedIndexAndTripIdList[0].arrivalTime.minutes -
+        (b.stopTimesByFeedIndexAndTripIdList[0].arrivalTime.hours * 60 +
+          b.stopTimesByFeedIndexAndTripIdList[0].arrivalTime.minutes)
+      );
+    });
+
+    // get the trip with the most timepoints for the table header
+    const mostTimepointsTrip = sorted.sort((a, b) => {
+      return (
+        b.stopTimesByFeedIndexAndTripIdList.length -
+        a.stopTimesByFeedIndexAndTripIdList.length
+      );
+    })[0];
+
+    // get the stops from the `mostTimepointsTrip` for the Table.Header row
+    const timepoints = mostTimepointsTrip.stopTimesByFeedIndexAndTripIdList.map(
+      st => st.stopByFeedIndexAndStopId
     );
 
     return (
@@ -34,19 +82,31 @@ class RouteSchedule extends React.Component {
         <Table.Header>
           <Table.Row>
             {timepoints.map(t => (
-              <Table.HeaderCell key={t}>{t}</Table.HeaderCell>
+              <Table.HeaderCell key={t.stopId}>{t.stopDesc}</Table.HeaderCell>
             ))}
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {filtered.map(t => (
+          {sorted.map(t => (
             <Table.Row>
-              {t.stopTimesByFeedIndexAndTripIdList.map(st => (
-                <Table.Cell>{`${st.arrivalTime.hours} ${
-                  st.arrivalTime.minutes
-                }`}</Table.Cell>
-              ))}
+              {/* Iterate over the timepoints and filter the current trip's timepoints for a match.  */}
+              {timepoints.map((tp, i) => {
+                let filtered = t.stopTimesByFeedIndexAndTripIdList.filter(
+                  st => {
+                    return st.stopId === tp.stopId;
+                  }
+                );
+                if (filtered.length === 0) {
+                  return <Table.Cell>-</Table.Cell>;
+                } else {
+                  return (
+                    <Table.Cell>
+                      {arrivalTimeDisplay(filtered[0].arrivalTime)}
+                    </Table.Cell>
+                  );
+                }
+              })}
             </Table.Row>
           ))}
         </Table.Body>
