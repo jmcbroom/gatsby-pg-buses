@@ -4312,7 +4312,9 @@
                     ]
                 ]
             ],
-            "layout": {},
+            "layout": {
+                "visibility":"none"
+            },
             "paint": {
                 "fill-color": "hsl(0, 0%, 100%)",
                 "fill-opacity": 1
@@ -4398,7 +4400,8 @@
             ],
             "layout": {
                 "line-cap": "round",
-                "line-join": "round"
+                "line-join": "round",
+                "visibility": "none"
             },
             "paint": {
                 "line-width": {
